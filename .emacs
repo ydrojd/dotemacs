@@ -14,7 +14,7 @@
  '(delete-selection-mode nil)
  '(menu-bar-mode nil)
  '(package-selected-packages
-   '(cmake-project cmake-ide git cmake-mode doxy-graph-mode bison-mode company-math latex-preview-pane latex-math-preview auctex adoc-mode csharp-mode company-jedi pyenv-mode virtualenvwrapper virtualenv elpy shell-toggle geiser-guile geiser bnf-mode lua-mode scheme-complete org-journal bibliothek cask pdf-tools nov company-irony-c-headers company-irony company verilog-mode))
+   '(markdown-preview-eww markdown-preview-mode cmake-project cmake-ide git cmake-mode doxy-graph-mode bison-mode company-math latex-preview-pane latex-math-preview auctex adoc-mode csharp-mode company-jedi pyenv-mode virtualenvwrapper virtualenv elpy shell-toggle geiser-guile geiser bnf-mode lua-mode scheme-complete org-journal bibliothek cask pdf-tools nov company-irony-c-headers company-irony company verilog-mode))
  '(show-paren-mode t)
  '(tool-bar-mode nil)
  '(virtualenv-root "~")
@@ -36,8 +36,6 @@
 (setq make-backup-files nil)
 
 (pdf-tools-install)
-;(require 'bibliothek)
-;(setq bibliothek-path (list "~/ebook"))
 
 (global-set-key (kbd "M-<up>") 'previous-buffer)
 (global-set-key (kbd "M-<down>") 'next-buffer)
@@ -47,9 +45,6 @@
 
 (global-set-key (kbd "M-<left>") 'previous-multiframe-window)
 (global-set-key (kbd "M-<right>") 'next-multiframe-window)
-
-;; (global-set-key (kbd "C-{") 'previous-multiframe-window)
-;; (global-set-key (kbd "C-}") 'next-multiframe-window)
 
 (global-set-key (kbd "C-'") 'eshell)
 
