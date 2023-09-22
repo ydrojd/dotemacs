@@ -14,7 +14,7 @@
  '(delete-selection-mode nil)
  '(menu-bar-mode nil)
  '(package-selected-packages
-   '(irony flycheck-irony  clang-format emms magit markdown-preview-eww markdown-preview-mode cmake-project cmake-ide cmake-mode doxy-graph-mode bison-mode company-math latex-preview-pane latex-math-preview auctex adoc-mode csharp-mode company-jedi pyenv-mode virtualenvwrapper virtualenv elpy shell-toggle geiser-guile geiser bnf-mode lua-mode scheme-complete org-journal bibliothek cask pdf-tools nov company-irony-c-headers company-irony company verilog-mode))
+   '(matlab-mode counsel ivy irony flycheck-irony clang-format emms magit markdown-preview-eww markdown-preview-mode cmake-project cmake-ide cmake-mode doxy-graph-mode bison-mode company-math latex-preview-pane latex-math-preview auctex adoc-mode csharp-mode company-jedi pyenv-mode virtualenvwrapper virtualenv elpy shell-toggle geiser-guile geiser bnf-mode lua-mode scheme-complete org-journal bibliothek cask pdf-tools nov company-irony-c-headers company-irony company verilog-mode))
  '(show-paren-mode t)
  '(tool-bar-mode nil)
  '(virtualenv-root "~")
@@ -24,6 +24,12 @@
 
 (pdf-tools-install)
 
+;;BEEEEEP
+(setq ring-bell-function 'ignore)
+
+;;---style---;;;
+(load-theme 'tango-dark)
+
 ;;---keybinds---;;
 (global-set-key (kbd "M-<up>") 'previous-buffer)
 (global-set-key (kbd "M-<down>") 'next-buffer)
@@ -32,10 +38,9 @@
 (global-set-key (kbd "C-'") 'eshell)
 (global-set-key (kbd "C-,") 'compile)
 (global-set-key (kbd "C-.") 'next-error)
-(global-set-key (kbd "C-;") 'dired)
+(global-set-key (kbd "C-;") 'counsel-switch-buffer)
 
-(load-theme 'tango-dark)
-
+(global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 (electric-pair-mode 1)
 
 (defun my-c-mode-hook ()
@@ -86,6 +91,11 @@
 
 (add-hook 'irony-mode-hook 'flycheck-mode)
 
+;;---ivory---;;
+(ivy-mode)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+
 (require 'color)
 
 (setq org-agenda-files '("~/org"))
@@ -98,10 +108,39 @@
    `(company-tooltip-selection ((t (:inherit font-lock-function-name-face))))
    `(company-tooltip-common ((t (:inherit font-lock-constant-face))))))
 
-    (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 (put 'scroll-left 'disabled nil)
 
 (defun my/python-mode-hook ()
   (add-to-list 'company-backends 'company-jedi))
 
 (add-hook 'python-mode-hook 'my/python-mode-hook)
+
+;; https://emacs.stackexchange.com/questions/63012/how-to-change-emacs-word-movement-behaviour
+(defun reluctant-forward (&optional arg)
+  (interactive "^p")
+  (if (> arg 0)
+      (dotimes (_ arg)
+        (when (looking-at-p "[ \t\n]")
+          (skip-chars-forward " \t\n"))
+        (unless (= (point) (point-max))
+          (if (looking-at-p "\\sw")
+              (skip-syntax-forward "w")
+            (if (re-search-forward "\n\\|\\s-\\|\\sw" nil t)
+                (backward-char)
+              (goto-char (point-max))))))
+    (dotimes (_ (- arg))
+      (when (looking-back "[ \t\n]")
+        (skip-chars-backward " \t\n"))
+      (unless (= (point) (point-min))
+        (if (looking-back "\\sw")
+            (skip-syntax-backward "w")
+          (if (re-search-backward "\n\\|\\s-\\|\\sw" nil t)
+              (forward-char)
+            (goto-char (point-min))))))))
+
+(defun reluctant-backward (&optional arg)
+  (interactive "^p")
+  (reluctant-forward (- arg)))
+
+(global-set-key (kbd "C-<left>") 'reluctant-backward)
+(global-set-key (kbd "C-<right>") 'reluctant-forward)
