@@ -5,16 +5,22 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(c-default-style
-   '((c-mode . "cc-mode")
-     (c++-mode . "cc-mode")
-     (java-mode . "java")
-     (awk-mode . "awk")
-     (other . "gnu")))
+   '((c-mode . "cc-mode") (c++-mode . "cc-mode") (java-mode . "java")
+     (awk-mode . "awk") (other . "gnu")))
  '(company-idle-delay 0.1)
  '(delete-selection-mode nil)
  '(menu-bar-mode nil)
  '(package-selected-packages
-   '(matlab-mode counsel ivy irony flycheck-irony clang-format emms magit markdown-preview-eww markdown-preview-mode cmake-project cmake-ide cmake-mode doxy-graph-mode bison-mode company-math latex-preview-pane latex-math-preview auctex adoc-mode csharp-mode company-jedi pyenv-mode virtualenvwrapper virtualenv elpy shell-toggle geiser-guile geiser bnf-mode lua-mode scheme-complete org-journal bibliothek cask pdf-tools nov company-irony-c-headers company-irony company verilog-mode))
+   '(ac-math adoc-mode auctex bibliothek bison-mode bnf-mode cask
+	     clang-format cmake-ide cmake-mode cmake-project company
+	     company-irony company-irony-c-headers company-jedi
+	     company-math counsel csharp-mode dired-sidebar
+	     doxy-graph-mode edit-indirect elpy emms flycheck-irony
+	     geiser geiser-guile irony ivy latex-math-preview
+	     latex-pretty-symbols latex-preview-pane lua-mode magit
+	     markdown-preview-eww markdown-preview-mode matlab-mode
+	     nov org-journal pdf-tools pyenv-mode scheme-complete
+	     shell-toggle verilog-mode virtualenv virtualenvwrapper))
  '(show-paren-mode t)
  '(tool-bar-mode nil)
  '(virtualenv-root "~")
@@ -40,12 +46,26 @@
 (global-set-key (kbd "C-.") 'next-error)
 (global-set-key (kbd "C-;") 'counsel-switch-buffer)
 
-(global-set-key (kbd "TAB") #'company-indent-or-complete-common)
-(electric-pair-mode 1)
+(global-set-key (kbd "C-<left>") 'reluctant-backward)
+(global-set-key (kbd "C-<right>") 'reluctant-forward)
+(global-set-key (kbd "M-b") 'reluctant-backward)
+(global-set-key (kbd "M-f") 'reluctant-forward)
+
+(global-set-key (kbd "C-M-n") 'forward-paragraph)
+(global-set-key (kbd "C-M-p") 'backward-paragraph)
+
+(global-set-key (kbd "M-;") #'dired-wd)
+
+(defun dired-wd ()
+  (interactive)
+  (dired "./"))
 
 (defun my-c-mode-hook ()
   (c-set-style ' cc-mode)
   (add-hook 'c-mode-hook 'my-c-mode-hook))
+
+(global-set-key (kbd "TAB") #'company-indent-or-complete-common)
+(electric-pair-mode 1)
 
 ;;---verilog mode---;;
 (autoload 'verilog-mode "verilog-mode" "Verilog mode" t )
@@ -76,6 +96,8 @@
  '(company-scrollbar-fg ((t (:background "#39f441834408"))) t)
  '(company-tooltip ((t (:inherit default :background "#32e339873bbd"))))
  '(company-tooltip-common ((t (:inherit font-lock-constant-face))))
+ '(company-tooltip-scrollbar-thumb ((t (:background "#39f441834408"))))
+ '(company-tooltip-scrollbar-track ((t (:background "#45bb4ed351db"))))
  '(company-tooltip-selection ((t (:inherit font-lock-function-name-face)))))
 
 ;;---irony---;;
@@ -142,5 +164,15 @@
   (interactive "^p")
   (reluctant-forward (- arg)))
 
-(global-set-key (kbd "C-<left>") 'reluctant-backward)
-(global-set-key (kbd "C-<right>") 'reluctant-forward)
+;; org-mode
+(global-set-key (kbd "C-c l") #'org-store-link)
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
+
+;; latex
+
+(autoload 'latex-math-preview-expression "latex-math-preview" nil t)
+(autoload 'latex-math-preview-insert-symbol "latex-math-preview" nil t)
+(autoload 'latex-math-preview-save-image-file "latex-math-preview" nil t)
+(autoload 'latex-math-preview-beamer-frame "latex-math-preview" nil t)
+(latex-preview-pane-enable)
