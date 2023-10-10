@@ -13,11 +13,11 @@
  '(package-selected-packages
    '(ac-math adoc-mode auctex bibliothek bison-mode bnf-mode cask
 	     clang-format cmake-ide cmake-mode cmake-project company
-	     company-irony company-irony-c-headers company-jedi
-	     company-math counsel csharp-mode dired-sidebar
-	     doxy-graph-mode edit-indirect elpy emms flycheck-irony
-	     geiser geiser-guile irony ivy latex-math-preview
-	     latex-pretty-symbols latex-preview-pane lua-mode magit
+	     company-jedi company-math counsel csharp-mode
+	     dired-sidebar doxy-graph-mode edit-indirect elpy emms
+	     geiser geiser-guile ivy 
+	     latex-math-preview latex-pretty-symbols
+	     latex-preview-pane lsp-mode lua-mode magit
 	     markdown-preview-eww markdown-preview-mode matlab-mode
 	     nov org-journal pdf-tools pyenv-mode scheme-complete
 	     shell-toggle verilog-mode virtualenv virtualenvwrapper))
@@ -64,7 +64,6 @@
   (c-set-style ' cc-mode)
   (add-hook 'c-mode-hook 'my-c-mode-hook))
 
-(global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 (electric-pair-mode 1)
 
 ;;---verilog mode---;;
@@ -72,14 +71,34 @@
 (add-to-list 'auto-mode-alist '("\\.[ds]?va?h?\\'" . verilog-mode))
 (put 'dired-find-alternate-file 'disabled nil)
 
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
-;; and `package-pinned-packages`. Most users will not need or want to do this.
-;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(package-initialize)
+;; lsp-mode
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :init (setq lsp-keymap-prefix "C-c l"))
+  ;; :config (lsp-enable-which-key-integration t))
+
+
+(add-hook 'c++-mode-hook 'lsp)
+(add-hook 'c-mode-hook 'lsp)
+
+(setq gc-cons-threshold 100000000) ;; 100mb
+(setq read-process-output-max 1048576) ;; 1mb
 
 ;;---company---;;
+
+(global-set-key (kbd "TAB") #'company-indent-or-complete-common)
+
+(use-package company
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :bind (:map company-active-map
+         ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 2.0))
+
 (eval-after-load 'company
      '(add-to-list
        'company-backends '(company-irony-c-headers company-irony company-clang company-keywords company-math-symbols-latex)))
@@ -99,12 +118,6 @@
  '(company-tooltip-scrollbar-thumb ((t (:background "#39f441834408"))))
  '(company-tooltip-scrollbar-track ((t (:background "#45bb4ed351db"))))
  '(company-tooltip-selection ((t (:inherit font-lock-function-name-face)))))
-
-;;---irony---;;
-(add-hook 'c++-mode-hook 'irony-mode)
-(add-hook 'c-mode-hook 'irony-mode)
-(add-hook 'objc-mode-hook 'irony-mode)
-(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
 
 ;;---flychecker---;;
 (with-eval-after-load 'flycheck
@@ -170,9 +183,15 @@
 (global-set-key (kbd "C-c c") #'org-capture)
 
 ;; latex
-
 (autoload 'latex-math-preview-expression "latex-math-preview" nil t)
 (autoload 'latex-math-preview-insert-symbol "latex-math-preview" nil t)
 (autoload 'latex-math-preview-save-image-file "latex-math-preview" nil t)
 (autoload 'latex-math-preview-beamer-frame "latex-math-preview" nil t)
 (latex-preview-pane-enable)
+
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
+;; and `package-pinned-packages`. Most users will not need or want to do this.
+;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
