@@ -24,8 +24,8 @@
 	     key-chord key-combo latex-math-preview
 	     latex-pretty-symbols latex-preview-pane lsp-mode
 	     lsp-sourcekit lsp-ui lua-mode magit markdown-preview-eww
-	     markdown-preview-mode matlab-mode nov org-journal
-	     pdf-tools pyenv-mode scheme-complete sed-mode
+	     markdown-preview-mode matlab-mode nov org-bullets
+	     org-journal pdf-tools pyenv-mode scheme-complete sed-mode
 	     shell-toggle tree-sitter use-package verilog-mode
 	     vhdl-ext vhdl-ts-mode virtualenv virtualenvwrapper
 	     which-key whole-line-or-region wiki-summary yeetube))
@@ -82,23 +82,27 @@
 (global-set-key (kbd "C-c f") 'magit-find-file-other-window)
 (global-set-key (kbd "C-c g") 'magit)
 (global-set-key (kbd "C-c i") 'package-install)
+(global-set-key (kbd "C-c h") 'bookmark-set-no-overwrite)
 (global-set-key (kbd "C-c j") 'counsel-bookmark)
-(global-set-key (kbd "C-c k") 'bookmark-set-no-overwrite)
-
+(global-set-key (kbd "C-c k") 'kill-matching-buffers)
 ;; C-c l for lsp mode
+(global-set-key (kbd "C-c m") 'calculator)
 (global-set-key (kbd "C-c n") 'gud-next)
 (global-set-key (kbd "C-c o") 'clang-format-buffer)
-(global-set-key (kbd "C-c y") 'yeetube-search)
-(global-set-key (kbd "C-c w") 'counsel-web-search)
-(global-set-key (kbd "C-c t") 'eat)
-
+(global-set-key (kbd "C-c p") 'dictionary-search)
+(global-set-key (kbd "C-c q") 'org-store-link)
 (global-set-key (kbd "C-c r") 'lsp-find-references)
 (global-set-key (kbd "C-c s") 'lsp-rename)
-(global-set-key (kbd "C-c z") 'replace-string)
-(global-set-key (kbd "C-c x") 'replace-regexp)
-(global-set-key (kbd "C-c v") 'lsp-ui-doc-glance)
-(global-set-key (kbd "C-c q") 'org-store-link)
+
+(global-set-key (kbd "C-c t") 'eat)
+
 (global-set-key (kbd "C-c u") 'org-capture)
+(global-set-key (kbd "C-c v") 'lsp-ui-doc-glance)
+(global-set-key (kbd "C-c w") 'counsel-web-search)
+(global-set-key (kbd "C-c x") 'replace-regexp)
+(global-set-key (kbd "C-c y") 'yeetube-search)
+(global-set-key (kbd "C-c z") 'replace-string)
+
 
 ;; misc values
 (setq kill-whole-line t)
@@ -199,7 +203,16 @@
 
 (require 'color)
 
-(setq org-agenda-files '("~/org"))
+(use-package org
+  :config
+  (setq org-log-done 'time)
+  (setq org-agenda-files '("~/org"))
+  (setq org-ellipsis " ▾"))
+
+(use-package org-bullets
+  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
 (let ((bg (face-attribute 'default :background)))
   (custom-set-faces
