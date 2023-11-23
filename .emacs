@@ -25,10 +25,11 @@
 	     latex-pretty-symbols latex-preview-pane lsp-mode
 	     lsp-sourcekit lsp-ui lua-mode magit markdown-preview-eww
 	     markdown-preview-mode matlab-mode nov org-bullets
-	     org-journal pdf-tools pyenv-mode scheme-complete sed-mode
-	     shell-toggle tree-sitter use-package verilog-mode
-	     vhdl-ext vhdl-ts-mode virtualenv virtualenvwrapper
-	     which-key whole-line-or-region wiki-summary yeetube))
+	     org-journal org-noter org-noter-pdftools pdf-tools
+	     pyenv-mode scheme-complete sed-mode shell-toggle
+	     tree-sitter use-package verilog-mode vhdl-ext
+	     vhdl-ts-mode virtualenv virtualenvwrapper which-key
+	     whole-line-or-region wiki-summary yeetube))
  '(show-paren-mode t)
  '(tab-bar-mode t)
  '(tool-bar-mode nil)
@@ -172,7 +173,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Source Code Pro" :foundry "ADBO" :slant normal :weight normal :height 130 :width normal))))
+ '(default ((t (:family "Source Code Pro" :foundry "ADBO" :slant normal :weight normal :height 120 :width normal))))
  '(company-scrollbar-bg ((t (:background "#45bb4ed351db"))) t)
  '(company-scrollbar-fg ((t (:background "#39f441834408"))) t)
  '(company-tooltip ((t (:inherit default :background "#32e339873bbd"))))
@@ -204,6 +205,7 @@
 (require 'color)
 
 (use-package org
+  :hook (org-mode . 'turn-on-auto-fill)
   :config
   (setq org-log-done 'time)
   (setq org-agenda-files '("~/org"))
@@ -213,6 +215,47 @@
   :hook (org-mode . org-bullets-mode)
   :custom
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+(use-package org-noter
+  :config
+  (require 'org-noter-pdftools))
+
+  ;; Your org-noter config ........
+(use-package org-noter-pdftools
+  :after org-noter
+  :config
+  ;; Add a function to ensure precise note is inserted
+  (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((org-noter-insert-note-no-questions (if toggle-no-questions
+                                                   (not org-noter-insert-note-no-questions)
+                                                 org-noter-insert-note-no-questions))
+           (org-pdftools-use-isearch-link t)
+           (org-pdftools-use-freepointer-annot t))
+       (org-noter-insert-note (org-noter--get-precise-info)))))
+
+  ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
+  (defun org-noter-set-start-location (&optional arg)
+    "When opening a session with this document, go to the current location.
+With a prefix ARG, remove start location."
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((inhibit-read-only t)
+           (ast (org-noter--parse-root))
+           (location (org-noter--doc-approx-location (when (called-interactively-p 'any) 'interactive))))
+       (with-current-buffer (org-noter--session-notes-buffer session)
+         (org-with-wide-buffer
+          (goto-char (org-element-property :begin ast))
+          (if arg
+              (org-entry-delete nil org-noter-property-note-location)
+            (org-entry-put nil org-noter-property-note-location
+                           (org-noter--pretty-print-location location))))))))
+  (with-eval-after-load 'pdf-annot
+    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
 
 (let ((bg (face-attribute 'default :background)))
   (custom-set-faces
